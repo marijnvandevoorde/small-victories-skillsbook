@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//Users/marijnvandevoorde/Sites/marijnvandevoorde/small-victories-bookings/**)",
+      "Read(//Users/marijnvandevoorde/Sites/marijnvandevoorde/**)",
+      "Bash(zip:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
