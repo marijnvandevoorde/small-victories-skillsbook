@@ -20,12 +20,15 @@ if (isset($_GET['skillsbook_edit']) && isset($_GET['uuid'])) {
 
 // Check if confirmation was successful
 $show_confirmation_message = isset($_GET['skillsbook_confirmed']);
+$confirmation_message = get_option('skillsbook_msg_success_confirmed',
+    'Je email is bevestigd! Je krijgt een email met een link om je informatie later te bewerken.'
+);
 ?>
 
 <div class="skillsbook-form-wrapper">
     <?php if ($show_confirmation_message): ?>
         <div class="skillsbook-message skillsbook-success">
-            Je email is bevestigd! Je krijgt een email met een link om je informatie later te bewerken.
+            <?php echo esc_html($confirmation_message); ?>
         </div>
     <?php endif; ?>
 

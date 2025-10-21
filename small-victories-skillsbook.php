@@ -3,7 +3,7 @@
  * Plugin Name: Small Victories Skillsbook
  * Plugin URI: https://small-victories.co
  * Description: Allow visitors to submit and manage their contact information with email confirmation
- * Version: 1.1.0
+ * Version: 1.2.0
  * Author: Small Victories
  * License: GPL v2 or later
  * Text Domain: small-victories-skillsbook
@@ -14,7 +14,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('SKILLSBOOK_VERSION', '1.1.0');
+define('SKILLSBOOK_VERSION', '1.2.0');
 define('SKILLSBOOK_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('SKILLSBOOK_PLUGIN_URL', plugin_dir_url(__FILE__));
 
@@ -219,8 +219,11 @@ class SmallVictoriesSkillsbook {
         if ($existing) {
             // Send edit link to existing user
             $this->send_edit_email($existing->uuid, $email);
+            $msg = get_option('skillsbook_msg_existing_user',
+                'Je hebt je info al eerder doorgegeven. We hebben je een email gestuurd om deze te bewerken. Geen zorgen, alle info blijft behouden.'
+            );
             wp_send_json_success(array(
-                'message' => 'Je hebt je info al eerder doorgegeven. We hebben je een email gestuurd om deze te bewerken. Geen zorgen, alle info blijft behouden.',
+                'message' => $msg,
                 'existing' => true
             ));
             return;
@@ -254,8 +257,11 @@ class SmallVictoriesSkillsbook {
         // Send confirmation email
         $this->send_confirmation_email($uuid, $email, $name);
 
+        $msg = get_option('skillsbook_msg_success_submit',
+            'Bedankt dat je de handen uit de mouwen wil steken. Je krijgt een email met een link om je info te bevestigen.'
+        );
         wp_send_json_success(array(
-            'message' => 'Bedankt dat je je handen uit de mouwen wil steken. Je krijgt een email met een link om je info te bevestigen.'
+            'message' => $msg
         ));
     }
 
@@ -312,8 +318,11 @@ class SmallVictoriesSkillsbook {
             return;
         }
 
+        $msg = get_option('skillsbook_msg_success_update',
+            'Je informatie is bijgewerkt.'
+        );
         wp_send_json_success(array(
-            'message' => 'Je informatie is bijgewerkt.'
+            'message' => $msg
         ));
     }
 
@@ -398,11 +407,18 @@ class SmallVictoriesSkillsbook {
             $base_url
         );
 
-        $subject = 'Bevestig je inschrijving';
-        $message = "Hallo {$name},\n\n";
-        $message .= "Bedankt voor je inschrijving. Klik op de onderstaande link om je email adres te bevestigen:\n\n";
-        $message .= $confirm_url . "\n\n";
-        $message .= "Groetjes,\nSmall Victories";
+        // Get email template from options
+        $subject = get_option('skillsbook_confirmation_email_subject', 'Bevestig je inschrijving');
+        $body = get_option('skillsbook_confirmation_email_body',
+            "Hallo [name],\n\n" .
+            "Bedankt voor je inschrijving. Klik op de onderstaande link om je email adres te bevestigen:\n\n" .
+            "[link]\n\n" .
+            "Groetjes,\nSmall Victories"
+        );
+
+        // Replace placeholders
+        $message = str_replace('[name]', $name, $body);
+        $message = str_replace('[link]', $confirm_url, $message);
 
         wp_mail($email, $subject, $message);
     }
@@ -419,11 +435,17 @@ class SmallVictoriesSkillsbook {
             $base_url
         );
 
-        $subject = 'Bewerk je informatie';
-        $message = "Hallo,\n\n";
-        $message .= "Gebruik de onderstaande link om je informatie te bewerken:\n\n";
-        $message .= $edit_url . "\n\n";
-        $message .= "Groetjes,\nSmall Victories";
+        // Get email template from options
+        $subject = get_option('skillsbook_edit_email_subject', 'Bewerk je informatie');
+        $body = get_option('skillsbook_edit_email_body',
+            "Hallo,\n\n" .
+            "Gebruik de onderstaande link om je informatie te bewerken:\n\n" .
+            "[link]\n\n" .
+            "Groetjes,\nSmall Victories"
+        );
+
+        // Replace placeholders
+        $message = str_replace('[link]', $edit_url, $body);
 
         wp_mail($email, $subject, $message);
     }
@@ -470,9 +492,9 @@ class SmallVictoriesSkillsbook {
     public function send_renewal_emails() {
         global $wpdb;
 
-        // Get default email content from options, or use default
-        $subject = get_option('skillsbook_renewal_subject', 'Kun je volgend jaar terug helpen?');
-        $body = get_option('skillsbook_renewal_body',
+        // Get email content from options
+        $subject = get_option('skillsbook_renewal_email_subject', 'Kun je volgend jaar terug helpen?');
+        $body = get_option('skillsbook_renewal_email_body',
             "Beste [name],\n\n" .
             "Een tijd terug gaf je je gegevens door via de website van de Ouderraad van GO! Flora. Het schooljaar is alweer ten einde, dus we willen even checken of we volgend jaar terug op je kunnen rekenen. Zoja, klik dan even op de onderstaande link, controleer je gegevens, en druk op de knop! Zoneen, dan hoef je niks te doen. We verwijderen je bij aanvang van het nieuwe jaar uit ons adresboek.\n\n" .
             "[link]\n\n" .

@@ -5,7 +5,8 @@
       "Read(//Users/marijnvandevoorde/Sites/marijnvandevoorde/**)",
       "Bash(zip:*)",
       "Bash(git add:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(git push:*)"
     ],
     "deny": [],
     "ask": []
