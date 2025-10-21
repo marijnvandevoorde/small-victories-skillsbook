@@ -3,7 +3,7 @@
  * Plugin Name: Small Victories Skillsbook
  * Plugin URI: https://small-victories.co
  * Description: Allow visitors to submit and manage their contact information with email confirmation
- * Version: 1.3.0
+ * Version: 1.3.1
  * Author: Small Victories
  * License: GPL v2 or later
  * Text Domain: small-victories-skillsbook
@@ -14,7 +14,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('SKILLSBOOK_VERSION', '1.3.0');
+define('SKILLSBOOK_VERSION', '1.3.1');
 define('SKILLSBOOK_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('SKILLSBOOK_PLUGIN_URL', plugin_dir_url(__FILE__));
 
@@ -425,6 +425,16 @@ class SmallVictoriesSkillsbook {
     }
 
     private function send_edit_email($uuid, $email) {
+        global $wpdb;
+
+        // Get the entry to fetch the name
+        $entry = $wpdb->get_row($wpdb->prepare(
+            "SELECT name FROM {$wpdb->prefix}skillsbook_entries WHERE uuid = %s",
+            $uuid
+        ));
+
+        $name = $entry ? $entry->name : '';
+
         $form_page_id = get_option('skillsbook_form_page_id', 0);
         $base_url = $form_page_id ? get_permalink($form_page_id) : home_url();
 
@@ -446,7 +456,8 @@ class SmallVictoriesSkillsbook {
         );
 
         // Replace placeholders
-        $message = str_replace('[link]', $edit_url, $body);
+        $message = str_replace('[name]', $name, $body);
+        $message = str_replace('[link]', $edit_url, $message);
 
         wp_mail($email, $subject, $message);
     }

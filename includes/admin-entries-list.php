@@ -5,14 +5,6 @@ if (!defined('ABSPATH')) {
 
 global $wpdb;
 
-// Handle settings update
-if (isset($_POST['skillsbook_update_settings'])) {
-    check_admin_referer('skillsbook_settings');
-    update_option('skillsbook_renewal_subject', sanitize_text_field($_POST['renewal_subject']));
-    update_option('skillsbook_renewal_body', sanitize_textarea_field($_POST['renewal_body']));
-    echo '<div class="notice notice-success"><p>Instellingen opgeslagen.</p></div>';
-}
-
 // Show renewal sent message
 if (isset($_GET['renewal_sent'])) {
     $sent = intval($_GET['renewal_sent']);
@@ -36,15 +28,6 @@ $expired_count = $wpdb->get_var(
     "SELECT COUNT(*) FROM {$wpdb->prefix}skillsbook_entries
      WHERE valid_until < CURDATE() AND confirmed = 1"
 );
-
-// Get current settings
-$renewal_subject = get_option('skillsbook_renewal_subject', 'Kun je volgend jaar terug helpen?');
-$renewal_body = get_option('skillsbook_renewal_body',
-    "Beste [name],\n\n" .
-    "Een tijd terug gaf je je gegevens door via de website van de Ouderraad van GO! Flora. Het schooljaar is alweer ten einde, dus we willen even checken of we volgend jaar terug op je kunnen rekenen. Zoja, klik dan even op de onderstaande link, controleer je gegevens, en druk op de knop! Zoneen, dan hoef je niks te doen. We verwijderen je bij aanvang van het nieuwe jaar uit ons adresboek.\n\n" .
-    "[link]\n\n" .
-    "Groetjes,\nDe Ouderraad"
-);
 ?>
 
 <div class="wrap">
@@ -67,36 +50,6 @@ $renewal_body = get_option('skillsbook_renewal_body',
         <?php else: ?>
             <button class="button button-primary" disabled>Geen verlopen inzendingen</button>
         <?php endif; ?>
-
-        <button type="button" class="button" id="skillsbook-toggle-settings">Email instellingen</button>
-    </div>
-
-    <div id="skillsbook-email-settings" style="display: none; background: #fff; padding: 20px; margin-bottom: 20px; border: 1px solid #ccc;">
-        <h2>Email instellingen voor vernieuwingen</h2>
-        <p>Gebruik <code>[name]</code> voor de naam van de persoon en <code>[link]</code> voor de bewerkingslink.</p>
-
-        <form method="post">
-            <?php wp_nonce_field('skillsbook_settings'); ?>
-
-            <table class="form-table">
-                <tr>
-                    <th scope="row"><label for="renewal_subject">Email onderwerp</label></th>
-                    <td>
-                        <input type="text" id="renewal_subject" name="renewal_subject" value="<?php echo esc_attr($renewal_subject); ?>" class="regular-text">
-                    </td>
-                </tr>
-                <tr>
-                    <th scope="row"><label for="renewal_body">Email inhoud</label></th>
-                    <td>
-                        <textarea id="renewal_body" name="renewal_body" rows="10" class="large-text"><?php echo esc_textarea($renewal_body); ?></textarea>
-                    </td>
-                </tr>
-            </table>
-
-            <p class="submit">
-                <input type="submit" name="skillsbook_update_settings" class="button button-primary" value="Instellingen opslaan">
-            </p>
-        </form>
     </div>
 
     <?php if (empty($entries)): ?>
@@ -197,11 +150,6 @@ $renewal_body = get_option('skillsbook_renewal_body',
 
 <script>
 jQuery(document).ready(function($) {
-    // Toggle email settings
-    $('#skillsbook-toggle-settings').on('click', function() {
-        $('#skillsbook-email-settings').slideToggle();
-    });
-
     // View full message modal
     $('.skillsbook-view-full').on('click', function() {
         var message = $(this).data('message');
