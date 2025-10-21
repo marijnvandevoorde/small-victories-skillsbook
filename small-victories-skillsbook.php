@@ -223,7 +223,7 @@ class SmallVictoriesSkillsbook {
             $msg = get_option('skillsbook_msg_existing_user',
                 'Je hebt je info al eerder doorgegeven. We hebben je een email gestuurd om deze te bewerken. Geen zorgen, alle info blijft behouden.'
             );
-            wp_send_json_success(array(
+            wp_send_json_error(array(
                 'message' => $msg,
                 'existing' => true
             ));
