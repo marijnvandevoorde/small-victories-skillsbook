@@ -105,6 +105,8 @@ jQuery(document).ready(function($) {
             if (tempEmail) $('.skillsbook-form [name="email"]').val(tempEmail);
             if (tempPhone) $('.skillsbook-form [name="phone"]').val(tempPhone);
             if (tempMessage) $('.skillsbook-form [name="message"]').val(tempMessage);
+
+            $('.skillsbook-existing-message').show();
         }
     }
 });
