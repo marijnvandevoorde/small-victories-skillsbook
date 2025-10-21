@@ -3,7 +3,7 @@
  * Plugin Name: Small Victories Skillsbook
  * Plugin URI: https://small-victories.co
  * Description: Allow visitors to submit and manage their contact information with email confirmation
- * Version: 1.2.0
+ * Version: 1.3.0
  * Author: Small Victories
  * License: GPL v2 or later
  * Text Domain: small-victories-skillsbook
@@ -14,7 +14,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('SKILLSBOOK_VERSION', '1.2.0');
+define('SKILLSBOOK_VERSION', '1.3.0');
 define('SKILLSBOOK_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('SKILLSBOOK_PLUGIN_URL', plugin_dir_url(__FILE__));
 
@@ -46,6 +46,7 @@ class SmallVictoriesSkillsbook {
         add_action('wp_ajax_skillsbook_update_entry_labels', array($this, 'ajax_update_entry_labels'));
         add_action('wp_ajax_skillsbook_get_labels', array($this, 'ajax_get_labels'));
         add_action('admin_init', array($this, 'handle_send_renewal_button'));
+        add_action('admin_init', array($this, 'handle_delete_expired_button'));
         add_action('template_redirect', array($this, 'handle_confirm_email'));
         add_action('template_redirect', array($this, 'handle_edit_page'));
         add_shortcode('skillsbook_form', array($this, 'render_shortcode'));
@@ -468,6 +469,41 @@ class SmallVictoriesSkillsbook {
                 'page' => 'sv-skillsbook',
                 'renewal_sent' => $result['sent'],
                 'renewal_total' => $result['total']
+            ),
+            admin_url('admin.php')
+        ));
+        exit;
+    }
+
+    public function handle_delete_expired_button() {
+        if (!isset($_GET['skillsbook_delete_expired'])) {
+            return;
+        }
+
+        if (!current_user_can('manage_options')) {
+            wp_die('Unauthorized');
+        }
+
+        check_admin_referer('skillsbook_delete_expired');
+
+        global $wpdb;
+
+        // Delete all expired and confirmed entries
+        $deleted = $wpdb->query(
+            "DELETE FROM {$wpdb->prefix}skillsbook_entries
+             WHERE valid_until < CURDATE() AND confirmed = 1"
+        );
+
+        // Also clean up any orphaned label relationships
+        $wpdb->query(
+            "DELETE FROM {$wpdb->prefix}skillsbook_submission_labels
+             WHERE submission_id NOT IN (SELECT id FROM {$wpdb->prefix}skillsbook_entries)"
+        );
+
+        wp_redirect(add_query_arg(
+            array(
+                'page' => 'sv-skillsbook',
+                'deleted_expired' => $deleted
             ),
             admin_url('admin.php')
         ));

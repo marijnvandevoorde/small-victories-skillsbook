@@ -20,6 +20,12 @@ if (isset($_GET['renewal_sent'])) {
     echo '<div class="notice notice-success"><p>Vernieuwingsemails verzonden naar ' . $sent . ' van ' . $total . ' verlopen inzendingen.</p></div>';
 }
 
+// Show delete expired message
+if (isset($_GET['deleted_expired'])) {
+    $deleted = intval($_GET['deleted_expired']);
+    echo '<div class="notice notice-success"><p>' . $deleted . ' verlopen inzendingen verwijderd.</p></div>';
+}
+
 // Get all entries, ordered by date_added DESC
 $entries = $wpdb->get_results(
     "SELECT * FROM {$wpdb->prefix}skillsbook_entries ORDER BY date_added DESC"
@@ -50,6 +56,13 @@ $renewal_body = get_option('skillsbook_renewal_body',
                class="button button-primary"
                onclick="return confirm('Wil je vernieuwingsemails sturen naar <?php echo $expired_count; ?> verlopen inzendingen?');">
                 Verstuur vernieuwingsemails (<?php echo $expired_count; ?>)
+            </a>
+
+            <a href="<?php echo wp_nonce_url(admin_url('admin.php?page=sv-skillsbook&skillsbook_delete_expired=1'), 'skillsbook_delete_expired'); ?>"
+               class="button button-secondary"
+               style="margin-left: 10px;"
+               onclick="return confirm('Weet je zeker dat je alle <?php echo $expired_count; ?> verlopen inzendingen wilt verwijderen? Dit kan niet ongedaan worden gemaakt.');">
+                Verwijder verlopen inzendingen (<?php echo $expired_count; ?>)
             </a>
         <?php else: ?>
             <button class="button button-primary" disabled>Geen verlopen inzendingen</button>
