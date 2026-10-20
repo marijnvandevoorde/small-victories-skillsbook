@@ -1,6 +1,10 @@
 # Small Victories Skillsbook
 
+> **No longer actively maintained.** The code stays available as is. Forks are welcome; issues and pull requests may not get an answer.
+
 A WordPress plugin that allows visitors to submit and manage their contact information with email confirmation.
+
+It was built for one school's parent council: the interface and default texts are Dutch only (no i18n), the children field label names that school, and entries expire on 15 July. Email texts and messages are configurable in the settings; the rest needs a code change.
 
 ## Features
 
