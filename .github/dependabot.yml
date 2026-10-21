@@ -19,6 +19,8 @@ updates:
         update-types:
           - "minor"
           - "patch"
+    cooldown:
+      default-days: 3
 
   # GitHub Actions used by workflows in .github/workflows/.
   - package-ecosystem: "github-actions"
@@ -33,3 +35,5 @@ updates:
         update-types:
           - "minor"
           - "patch"
+    cooldown:
+      default-days: 3
